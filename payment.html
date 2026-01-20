@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Page</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <script>
+    (function() {
+      // Initialize EmailJS with your Public Key
+      emailjs.init("wTGaG3BLtP1JoxyV1");
+    })();
+  </script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      width: 90%;
+      max-width: 700px;
+      margin: 50px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 10px;
+    }
+    input, textarea, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background: #28a745;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+    button:hover {
+      background: #218838;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Complete Your Payment</h2>
+    <form id="payment-form">
+      <label for="sendername">Full Name</label>
+      <input type="text" name="sendername" id="sendername" required>
+
+      <label for="senderemail">Email</label>
+      <input type="email" name="senderemail" id="senderemail" required>
+
+      <label for="order_details">Order Summary</label>
+      <textarea name="order_details" id="order_details" rows="4" readonly></textarea>
+
+      <label for="payment">Payment Method</label>
+      <select name="payment" id="payment" required>
+        <option value="">-- Select Payment Method --</option>
+        <option value="Cash on Delivery">Cash on Delivery</option>
+        <option value="Credit Card">Credit Card</option>
+      </select>
+
+      <button type="submit">Place Order</button>
+    </form>
+  </div>
+
+  <script>
+    // Load cart items from localStorage and display in textarea
+    document.addEventListener("DOMContentLoaded", function() {
+      let cart = JSON.parse(localStorage.getItem("cart")) || [];
+      let summary = "";
+      let total = 0;
+      cart.forEach(item => {
+        summary += `${item.name} - $${item.price} x ${item.quantity}\n`;
+        total += item.price * item.quantity;
+      });
+      summary += `\nTotal: $${total}`;
+      document.getElementById("order_details").value = summary;
+    });
+
+    // Handle form submit
+    document.getElementById("payment-form").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      emailjs.sendForm("service_zpojris", "template_6dly5yi", this)
+        .then(function() {
+          // Redirect to Thank You page
+          window.location.href = "thankyou.html";
+        }, function(error) {
+          alert("FAILED to send order: " + JSON.stringify(error));
+        });
+    });
+  </script>
+</body>
+</html>

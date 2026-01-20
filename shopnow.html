@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shipping</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+  <style>
+    .free-shipping {
+      background-color: #4B1A5A;
+      color: white;
+      text-align: center;
+      padding: 5px 0;
+      font-size: larger;
+      height: 50px;
+      font-family: Arial;
+    }
+
+    .navbar-brand {
+      font-weight: bold;
+      font-size: 20px;
+    }
+
+    .nav-link {
+      color: black !important;
+      font-weight: 400;
+    }
+
+    .card {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg bg-white border-bottom">
+    <div class="container">
+      <a class="navbar-brand" href="#">ONLINE SHIPPING</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="shopDropdown" role="button" data-bs-toggle="dropdown">
+              Shop
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#">All Product</a></li>
+              <li><a class="dropdown-item" href="#">New Collection</a></li>
+            </ul>
+          </li>
+          <li class="nav-item"><a class="nav-link" href="#">Sustainability</a></li>
+          <li class="nav-item"><a class="nav-link" href="./about.html">About</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#cartModal">
+              <i class="bi bi-bag"></i> Cart
+              <span class="badge bg-danger" id="cartCount">0</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Cart Modal -->
+  <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Your Shopping Bag</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" id="cartItems">
+          <i class="bi bi-bag-x d-block text-center" style="font-size: 3rem;"></i>
+          <p class="text-center mt-2">Shopping bag is empty</p>
+        </div>
+        <div class="modal-footer">
+          <h5 class="me-auto mb-0">Total: <span id="cartTotal">$0</span></h5>
+          <button type="button" class="btn btn-success" id="checkoutBtn" disabled>Checkout</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-danger" id="paymentBtn" disabled>Payment</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Free Shipping Bar -->
+  <div class="free-shipping" data-aos="fade-down">
+    Free shipping on orders over $50 amount
+  </div>
+
+  <!-- Product Section -->
+  <div class="container-fluid p-4">
+    <div class="row" id="productRow">
+      <!-- 12 product cards will be generated here -->
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+  <script>
+    AOS.init({ duration: 1000, once: false });
+
+    // ====== Generate 12 Product Cards ======
+    const productRow = document.getElementById("productRow");
+    for (let i = 1; i <= 12; i++) {
+      productRow.innerHTML += `
+        <div class="col-sm-3" data-aos="zoom-in">
+          <div class="card" style="width: 17rem;">
+            <img src="../content/imgs/fancy-ladies-trousers.jpg" class="card-img-top" alt="Trouser">
+            <div class="card-body">
+              <p class="card-text">Trouser <b>$8</b></p>
+              <button class="btn btn-primary btn-sm text-dark add-to-cart">Buy</button>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    // ====== Cart Logic ======
+    const cartItems = document.getElementById("cartItems");
+    const cartCount = document.getElementById("cartCount");
+    const cartTotal = document.getElementById("cartTotal");
+    const checkoutBtn = document.getElementById("checkoutBtn");
+    const paymentBtn = document.getElementById("paymentBtn");
+    let cart = [];
+
+    function renderCart() {
+      if (cart.length === 0) {
+        cartItems.innerHTML = `
+          <i class="bi bi-bag-x d-block text-center" style="font-size: 3rem;"></i>
+          <p class="text-center mt-2">Shopping bag is empty</p>`;
+        cartTotal.innerText = "$0";
+        checkoutBtn.disabled = true;
+        paymentBtn.disabled = true;
+      } else {
+        cartItems.innerHTML = "<ul class='list-group'>";
+        let total = 0;
+        cart.forEach((item, index) => {
+          total += item.price;
+          cartItems.innerHTML += `
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              ${item.name} - $${item.price}
+              <button class="btn btn-sm btn-danger remove-item" data-index="${index}">
+                <i class="bi bi-trash"></i>
+              </button>
+            </li>`;
+        });
+        cartItems.innerHTML += "</ul>";
+        cartTotal.innerText = `$${total}`;
+        checkoutBtn.disabled = false;
+        paymentBtn.disabled = false;
+      }
+      cartCount.innerText = cart.length;
+      document.querySelectorAll(".remove-item").forEach(btn => {
+        btn.addEventListener("click", function () {
+          const index = this.getAttribute("data-index");
+          cart.splice(index, 1);
+          renderCart();
+        });
+      });
+    }
+
+    // Add to cart
+    document.querySelectorAll(".add-to-cart").forEach(button => {
+      button.addEventListener("click", function () {
+        const productTitle = this.parentElement.querySelector(".card-text").innerText.split(" ")[0];
+        const productPrice = parseFloat(this.parentElement.querySelector("b").innerText.replace("$", ""));
+        const imgSrc = this.closest(".card").querySelector("img").src;
+        cart.push({ name: productTitle, price: productPrice, image: imgSrc });
+        renderCart();
+      });
+    });
+
+    // Checkout
+    checkoutBtn.addEventListener("click", () => {
+      alert("Proceeding to checkout with " + cart.length + " item(s). Total: " + cartTotal.innerText);
+    });
+
+    // Payment redirect
+    paymentBtn.addEventListener("click", () => {
+      localStorage.setItem("cart", JSON.stringify(cart));
+      localStorage.setItem("total", cartTotal.innerText);
+      window.location.href = "payment.html";
+    });
+
+    renderCart();
+  </script>
+</body>
+</html>

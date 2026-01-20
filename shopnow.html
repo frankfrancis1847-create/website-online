@@ -105,95 +105,109 @@
   </div>
 
   <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
-  <script>
-    AOS.init({ duration: 1000, once: false });
+ <script>
+document.addEventListener("DOMContentLoaded", function () {
 
-    // ====== Generate 12 Product Cards ======
-    const productRow = document.getElementById("productRow");
-    for (let i = 1; i <= 12; i++) {
-      productRow.innerHTML += `
-        <div class="col-sm-3" data-aos="zoom-in">
-          <div class="card" style="width: 17rem;">
-            <img src="ladies-trousers.jpg" class="card-img-top" alt="Trouser">
-            <div class="card-body">
-              <p class="card-text">Trouser <b>$8</b></p>
-              <button class="btn btn-primary btn-sm text-dark add-to-cart">Buy</button>
-            </div>
+  AOS.init({ duration: 1000, once: false });
+
+  const productRow = document.getElementById("productRow");
+
+  /* ===== PRODUCT DATA ===== */
+  const products = Array.from({ length: 30 }, (_, i) => ({
+    id: i + 1,
+    name: "Trouser",
+    price: 8,
+    image: "content/imgs/fancy-ladies-trousers.jpg"
+  }));
+
+  /* ===== GENERATE 30 CARDS ===== */
+  products.forEach(product => {
+    productRow.innerHTML += `
+      <div class="col-sm-3 mb-4" data-aos="zoom-in">
+        <div class="card h-100" style="width: 17rem;">
+          <img src="${product.image}" class="card-img-top" alt="${product.name}">
+          <div class="card-body text-center">
+            <p class="card-text">${product.name} <b>$${product.price}</b></p>
+            <button class="btn btn-primary btn-sm text-dark add-to-cart"
+              data-name="${product.name}"
+              data-price="${product.price}">
+              Buy
+            </button>
           </div>
-        </div>`;
-    }
+        </div>
+      </div>
+    `;
+  });
 
-    // ====== Cart Logic ======
-    const cartItems = document.getElementById("cartItems");
-    const cartCount = document.getElementById("cartCount");
-    const cartTotal = document.getElementById("cartTotal");
-    const checkoutBtn = document.getElementById("checkoutBtn");
-    const paymentBtn = document.getElementById("paymentBtn");
-    let cart = [];
+  /* ===== CART LOGIC ===== */
+  const cartItems = document.getElementById("cartItems");
+  const cartCount = document.getElementById("cartCount");
+  const cartTotal = document.getElementById("cartTotal");
+  const checkoutBtn = document.getElementById("checkoutBtn");
+  const paymentBtn = document.getElementById("paymentBtn");
 
-    function renderCart() {
-      if (cart.length === 0) {
-        cartItems.innerHTML = `
-          <i class="bi bi-bag-x d-block text-center" style="font-size: 3rem;"></i>
-          <p class="text-center mt-2">Shopping bag is empty</p>`;
-        cartTotal.innerText = "$0";
-        checkoutBtn.disabled = true;
-        paymentBtn.disabled = true;
-      } else {
-        cartItems.innerHTML = "<ul class='list-group'>";
-        let total = 0;
-        cart.forEach((item, index) => {
-          total += item.price;
-          cartItems.innerHTML += `
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              ${item.name} - $${item.price}
-              <button class="btn btn-sm btn-danger remove-item" data-index="${index}">
-                <i class="bi bi-trash"></i>
-              </button>
-            </li>`;
-        });
-        cartItems.innerHTML += "</ul>";
-        cartTotal.innerText = `$${total}`;
-        checkoutBtn.disabled = false;
-        paymentBtn.disabled = false;
-      }
-      cartCount.innerText = cart.length;
-      document.querySelectorAll(".remove-item").forEach(btn => {
-        btn.addEventListener("click", function () {
-          const index = this.getAttribute("data-index");
-          cart.splice(index, 1);
-          renderCart();
-        });
+  let cart = [];
+
+  function renderCart() {
+    if (cart.length === 0) {
+      cartItems.innerHTML = `
+        <i class="bi bi-bag-x d-block text-center" style="font-size: 3rem;"></i>
+        <p class="text-center mt-2">Shopping bag is empty</p>`;
+      cartTotal.innerText = "$0";
+      checkoutBtn.disabled = true;
+      paymentBtn.disabled = true;
+    } else {
+      cartItems.innerHTML = "<ul class='list-group'>";
+      let total = 0;
+      cart.forEach((item, index) => {
+        total += item.price;
+        cartItems.innerHTML += `
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            ${item.name} - $${item.price}
+            <button class="btn btn-sm btn-danger remove-item" data-index="${index}">
+              <i class="bi bi-trash"></i>
+            </button>
+          </li>`;
       });
+      cartItems.innerHTML += "</ul>";
+      cartTotal.innerText = `$${total}`;
+      checkoutBtn.disabled = false;
+      paymentBtn.disabled = false;
     }
+    cartCount.innerText = cart.length;
+  }
+
+  /* ===== EVENT DELEGATION ===== */
+  document.addEventListener("click", function (e) {
 
     // Add to cart
-    document.querySelectorAll(".add-to-cart").forEach(button => {
-      button.addEventListener("click", function () {
-        const productTitle = this.parentElement.querySelector(".card-text").innerText.split(" ")[0];
-        const productPrice = parseFloat(this.parentElement.querySelector("b").innerText.replace("$", ""));
-        const imgSrc = this.closest(".card").querySelector("img").src;
-        cart.push({ name: productTitle, price: productPrice, image: imgSrc });
-        renderCart();
-      });
-    });
+    if (e.target.classList.contains("add-to-cart")) {
+      const name = e.target.dataset.name;
+      const price = parseFloat(e.target.dataset.price);
+      cart.push({ name, price });
+      renderCart();
+    }
 
-    // Checkout
-    checkoutBtn.addEventListener("click", () => {
-      alert("Proceeding to checkout with " + cart.length + " item(s). Total: " + cartTotal.innerText);
-    });
+    // Remove item
+    if (e.target.closest(".remove-item")) {
+      const index = e.target.closest(".remove-item").dataset.index;
+      cart.splice(index, 1);
+      renderCart();
+    }
+  });
 
-    // Payment redirect
-    paymentBtn.addEventListener("click", () => {
-      localStorage.setItem("cart", JSON.stringify(cart));
-      localStorage.setItem("total", cartTotal.innerText);
-      window.location.href = "payment.html";
-    });
+  /* ===== BUTTON ACTIONS ===== */
+  checkoutBtn.addEventListener("click", () => {
+    alert(`Checkout with ${cart.length} item(s). Total: ${cartTotal.innerText}`);
+  });
 
-    renderCart();
-  </script>
-</body>
-</html>
+  paymentBtn.addEventListener("click", () => {
+    localStorage.setItem("cart", JSON.stringify(cart));
+    localStorage.setItem("total", cartTotal.innerText);
+    window.location.href = "payment.html";
+  });
 
+  renderCart();
+
+});
+</script>
